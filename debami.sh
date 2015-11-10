@@ -230,7 +230,8 @@ packer build $JSON_FULLPATH >> $DEBAMI_LOGFILE
 # # # # # # # # # # # # # # # # # # # # # # # # # #
 echo "Cleaning up" >> $DEBAMI_LOGFILE
 
-echo $TMPDIR # DEBUG
-
 # Nuke temp directory and all it contains
-# rm -rf $TMPDIR
+rm -rf $TMPDIR
+
+echo "Success;"
+tail -2 $DEBAMI_LOGFILE | head -1
