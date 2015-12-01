@@ -36,5 +36,14 @@ Various parameters can be set as environmental variables, which the debami.sh wi
 * USERNAME_SSH
 * VPC_ID
 
+#### Any required parameters not provided, will be requested for during run time at the command line.
 
-### Any required parameters not provided, will be requested for during run time at the command line.
+## Packer
+Packer can easily be install via the following,
+https://packer.io/docs/installation.html
+
+## dpkg-scanpackages
+Can be found in the debian package *dpkg-dev*, and installed via the following command,
+```bash
+$ sudo apt-get install dpkg-dev
+```
