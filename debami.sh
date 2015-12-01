@@ -17,6 +17,7 @@ APT_LIST_FILENAME="debami.list"
 TARBALL_NAME="debami.tar.gz"
 JSON_FILENAME="debami.json"
 DEBAMI_LOGFILE="`pwd`/debami.log"
+HVM_JSON=""
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -78,6 +79,9 @@ do
 	    DEB_PATH="$2"
 	    shift # past argument
 	    ;;
+	-h|--hvm)
+	    HVM_FLAG="TRUE"
+	    ;;
 	-i|--instance-type)
 	    INSTANCE_TYPE="$2"
 	    shift # past argument
@@ -90,12 +94,20 @@ do
 	    SOURCE_AMI="$2"
 	    shift # past argument
 	    ;;
+	--subnet-id)
+	    SUBNET_ID="$2"
+	    shift # past argument
+	    ;;
 	-t|--tag-name)
 	    TAG_NAME="$2"
 	    shift # past argument
 	    ;;
 	-u|--username-ssh)
 	    SSH_USERNAME="$2"
+	    shift # past argument
+	    ;;
+	--vpc-id)
+	    VPC_ID="$2"
 	    shift # past argument
 	    ;;
 	*) # Unknown option
@@ -126,6 +138,18 @@ fi
 if [ -z "$SSH_USERNAME" ]; then
     read -p "USERNAME_SSH= " SSH_USERNAME
 fi
+
+if [ -z "$HVM_FLAG" ]; then
+    if [ -z "$VPC_ID" ]; then
+	read -p "VPC_ID= " VPC_ID
+    fi
+    if [ -z "$SUBNET_ID" ]; then
+	read -p "SUBNET_ID= " SUBNET_ID
+    fi
+
+    HVM_JSON="\"ami_virtualization_type\": \"hvm\", \"vpc_id\": \"${VPC_ID}\", \"subnet_id\": \"${SUBNET_ID}\","
+fi
+
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -184,6 +208,8 @@ cat > $JSON_FULLPATH <<EOF
 	"secret_key": "{{user \`aws_secret_key\`}}",
 	"region": "$EC2_REGION",
 	"source_ami": "$SOURCE_AMI",
+        "associate_public_ip_address": "true",
+        $HVM_JSON
 	"instance_type": "$INSTANCE_TYPE",
 	"ssh_username": "$SSH_USERNAME",
 	"tags": {
