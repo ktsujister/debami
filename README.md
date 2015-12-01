@@ -39,7 +39,7 @@ Various parameters can be set as environmental variables, which the debami.sh wi
 #### Any required parameters not provided, will be requested for during run time at the command line.
 
 ## Packer
-Packer can easily be install via the following,
+Packer can easily be installed via the following instructions,
 https://packer.io/docs/installation.html
 
 ## dpkg-scanpackages
