@@ -5,7 +5,7 @@ The script requires that both *packer* and *dpkg-scanpackages* be available from
 ## Usage
 
 ```bash
-$ EC2_REGION=us-west-2 ./debami.sh \
+$ ./debami.sh \
   --ami-name ami-name-here \
   --builder-name name-of-build-instance \
   --deb-path /path/to/my/packages \
