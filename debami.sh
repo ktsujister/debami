@@ -140,6 +140,8 @@ if [ -z "$SSH_USERNAME" ]; then
 fi
 
 if [ -z "$HVM_FLAG" ]; then
+    HVM_JSON=""
+else
     if [ -z "$VPC_ID" ]; then
 	read -p "VPC_ID= " VPC_ID
     fi
