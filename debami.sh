@@ -78,8 +78,15 @@ do
 	    DEB_PATH="$2"
 	    shift # past argument
 	    ;;
+	-h|--hvm)
+	    HVM_MODE="1"
+	    ;;
 	-i|--instance-type)
 	    INSTANCE_TYPE="$2"
+	    shift # past argument
+	    ;;
+	-n|--subnet-id)
+	    SUBNET_ID="$2"
 	    shift # past argument
 	    ;;
 	-p|--package)
@@ -96,6 +103,10 @@ do
 	    ;;
 	-u|--username-ssh)
 	    SSH_USERNAME="$2"
+	    shift # past argument
+	    ;;
+	-v|--vpc-id)
+	    VPC_ID="$2"
 	    shift # past argument
 	    ;;
 	*) # Unknown option
@@ -171,7 +182,9 @@ tar -cvzf $TARBALL_NAME usr etc >> $DEBAMI_LOGFILE
 
 JSON_FULLPATH="${TMPDIR}/${JSON_FILENAME}"
 echo "Writing  $JSON_FULLPATH" >> $DEBAMI_LOGFILE
-cat > $JSON_FULLPATH <<EOF
+
+if [[ -z "${HVM_MODE}" ]]; then
+    cat > $JSON_FULLPATH <<EOF
 {
     "variables": {
 	"aws_access_key": "{{env \`AWS_ACCESS_KEY\`}}",
@@ -210,6 +223,53 @@ cat > $JSON_FULLPATH <<EOF
     ]
 }
 EOF
+
+else
+    echo "HVM_MODE: VPC_ID: ${VPC_ID}, SUBNET_ID: ${SUBNET_ID}" >> $DEBAMI_LOGFILE
+    cat > $JSON_FULLPATH <<EOF
+{
+    "variables": {
+	"aws_access_key": "{{env \`AWS_ACCESS_KEY\`}}",
+	"aws_secret_key": "{{env \`AWS_SECRET_KEY\`}}"
+    },
+    "builders": [{
+	"type": "amazon-ebs",
+	"name": "$BUILDER_NAME",
+	"access_key": "{{user \`aws_access_key\`}}",
+	"secret_key": "{{user \`aws_secret_key\`}}",
+	"region": "$EC2_REGION",
+	"source_ami": "$SOURCE_AMI",
+	"associate_public_ip_address": "true",
+	"ami_virtualization_type": "hvm",
+	"instance_type": "$INSTANCE_TYPE",
+	"ssh_username": "$SSH_USERNAME",
+	"vpc_id": "${VPC_ID}",
+	"subnet_id": "${SUBNET_ID}",
+	"tags": {
+	    "Name": "$TAG_NAME"
+	},
+	"ami_name": "$AMI_NAME"
+    }],
+    "provisioners": [
+	{
+	    "type": "file",
+	    "source": "$TARBALL_NAME",
+	    "destination": "/tmp/$TARBALL_NAME"
+	},
+	{
+	    "type": "shell",
+	    "inline": [
+		"sleep 30",
+                "cd /",
+                "sudo tar -xvzf /tmp/$TARBALL_NAME",
+		"sudo apt-get update",
+		"sudo apt-get install --force-yes -y $INSTALL_PACKAGE"
+	    ]
+	}
+    ]
+}
+EOF
+fi
 
 # ^ ^ ^ ^ ^ ^ ^ ^
 # NOTES ON ABOVE
