@@ -18,7 +18,7 @@ TARBALL_NAME="debami.tar.gz"
 JSON_FILENAME="debami.json"
 DEBAMI_LOGFILE="`pwd`/debami.log"
 HVM_JSON=""
-
+IAM_ROLE_JSON=""
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Ensure we have the correct AWS end point and URL set
@@ -110,6 +110,10 @@ do
 	    VPC_ID="$2"
 	    shift # past argument
 	    ;;
+	--iam-role)
+	    IAM_ROLE="$2"
+	    shift
+	    ;;
 	*) # Unknown option
 	    echo >&2 "'$key' is an unknown option";
 	    exit 1;
@@ -152,7 +156,11 @@ else
     HVM_JSON="\"ami_virtualization_type\": \"hvm\", \"vpc_id\": \"${VPC_ID}\", \"subnet_id\": \"${SUBNET_ID}\","
 fi
 
-
+if [ -z "${IAM_ROLE}" ]; then
+    IAM_ROLE_JSON=""
+else
+    IAM_ROLE_JSON="\"iam_instance_profile\": \"${IAM_ROLE}\","
+fi
 
 # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Generate local repo files and tarball
@@ -211,7 +219,8 @@ cat > $JSON_FULLPATH <<EOF
 	"region": "$EC2_REGION",
 	"source_ami": "$SOURCE_AMI",
         "associate_public_ip_address": "true",
-        $HVM_JSON
+        ${HVM_JSON}
+	${IAM_ROLE_JSON}
 	"instance_type": "$INSTANCE_TYPE",
 	"ssh_username": "$SSH_USERNAME",
 	"tags": {
