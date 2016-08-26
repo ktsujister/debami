@@ -232,7 +232,7 @@ cat > $JSON_FULLPATH <<EOF
                 "cd /",
                 "sudo tar -xvzf /tmp/$TARBALL_NAME",
 		"sudo apt-get update",
-		"sudo apt-get install --force-yes -y $INSTALL_PACKAGE"
+		"sudo apt-get install --allow-unauthenticated -y $INSTALL_PACKAGE"
 	    ]
 	}
     ]
@@ -243,7 +243,7 @@ EOF
 # NOTES ON ABOVE
 # ^ ^ ^ ^ ^ ^ ^ ^
 # - 'apt-get update' may take exceptionally long on AWS
-# - 'apt-get install --force-yes' is required as the
+# - 'apt-get install --allow-unauthenticated' is required as the
 #   local packages can't be authenticated.
 
 
