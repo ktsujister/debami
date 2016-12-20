@@ -114,6 +114,22 @@ do
 	    IAM_ROLE="$2"
 	    shift
 	    ;;
+	--private-key-file)
+	    PRIVATE_KEY_FILE="$2"
+	    shift
+	    ;;
+	--keypair)
+	    KEYPAIR="$2"
+	    shift
+	    ;;
+	--security-group-id)
+	    SG_ID="$2"
+	    shift
+	    ;;
+	--token)
+	    TOKEN="$2"
+	    shift
+	    ;;
 	*) # Unknown option
 	    echo >&2 "'$key' is an unknown option";
 	    exit 1;
@@ -160,6 +176,24 @@ if [ -z "${IAM_ROLE}" ]; then
     IAM_ROLE_JSON=""
 else
     IAM_ROLE_JSON="\"iam_instance_profile\": \"${IAM_ROLE}\","
+fi
+
+if [ -z "${KEYPAIR}" ]; then
+    KEYPAIR_JSON=""
+else
+    KEYPAIR_JSON="\"ssh_keypair_name\": \"${KEYPAIR}\", \"ssh_private_key_file\": \"${PRIVATE_KEY_FILE}\","
+fi
+
+if [ -z "${SG_ID}" ]; then
+    SG_ID_JSON=""
+else
+    SG_ID_JSON="\"security_group_id\": \"${SG_ID}\","
+fi
+
+if [ -z "${TOKEN}" ]; then
+    TOKEN_JSON=""
+else
+    TOKEN_JSON="\"token\": \"${TOKEN}\","
 fi
 
 # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -216,11 +250,14 @@ cat > $JSON_FULLPATH <<EOF
 	"name": "$BUILDER_NAME",
 	"access_key": "{{user \`aws_access_key\`}}",
 	"secret_key": "{{user \`aws_secret_key\`}}",
+	${TOKEN_JSON}
 	"region": "$EC2_REGION",
 	"source_ami": "$SOURCE_AMI",
         "associate_public_ip_address": "true",
         ${HVM_JSON}
 	${IAM_ROLE_JSON}
+	${KEYPAIR_JSON}
+	${SG_ID_JSON}
 	"instance_type": "$INSTANCE_TYPE",
 	"ssh_username": "$SSH_USERNAME",
 	"tags": {
